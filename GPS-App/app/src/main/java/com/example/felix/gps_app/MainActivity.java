@@ -56,8 +56,8 @@ public class MainActivity extends Activity implements LocationListener
     private TextView textLongitude;
     private TextView textAddress;
     Calendar calendar;
-    SimpleDateFormat simpleDateFormat;
-    String formattedDate;
+    SimpleDateFormat simpleDateFormatWithClock, simpleDateFormatWithoutClock;
+    String formattedDateWithClock, formattedDateWithOutClock;
 
     private final static String FILE_DIR = "/Apps/GpsAppWithDBoxTracking/";
     private final static String DROPBOX_NAME = "dropbox_prefs";
@@ -85,8 +85,11 @@ public class MainActivity extends Activity implements LocationListener
         textAddress = (TextView) findViewById(R.id.TextViewAddValue);
 
         calendar = Calendar.getInstance();
-        simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        formattedDate = simpleDateFormat.format(calendar.getTime());
+        simpleDateFormatWithClock = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        formattedDateWithClock = simpleDateFormatWithClock.format(calendar.getTime());
+
+        simpleDateFormatWithoutClock = new SimpleDateFormat("dd.MM.yyyy");
+        formattedDateWithOutClock = simpleDateFormatWithoutClock.format(calendar.getTime());
 
 
         //Google Maps Bestandteile
@@ -307,15 +310,19 @@ public class MainActivity extends Activity implements LocationListener
             final File tempDir = context.getCacheDir();
             File tempFile;
             FileWriter fileWriter;
+
+            calendar = Calendar.getInstance();
+            simpleDateFormatWithClock = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            formattedDateWithClock = simpleDateFormatWithClock.format(calendar.getTime());
             try
             {
                 tempFile = File.createTempFile("file", ".txt", tempDir);
                 fileWriter = new FileWriter(tempFile, true);
-                fileWriter.write("\n" + textLatitude.getText().toString() + "     " + textLongitude.getText().toString() + "    " + textAddress.getText().toString() + formattedDate + "\n");
+                fileWriter.write("\n" + textLatitude.getText().toString() + "     " + textLongitude.getText().toString() + "    " + textAddress.getText().toString() + formattedDateWithClock + "\n");
                 fileWriter.close();
 
                 FileInputStream fileInputStream = new FileInputStream(tempFile);
-                dropbox.putFile(path + "GPS-Koordinaten.txt", fileInputStream, tempFile.length(), null, null);
+                dropbox.putFile(path + formattedDateWithOutClock+".txt", fileInputStream, tempFile.length(), null, null);
                 tempFile.delete();
                 System.out.println("###### DATEI WIRD HOCHGELADEN ########");
                 return true;
